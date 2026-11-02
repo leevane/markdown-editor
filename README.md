@@ -366,7 +366,7 @@ countWords(md)                    // 字数（中文按字，英文按词）
 
 | 文件 | 大小 | gzip |
 |---|---|---|
-| `index.js` | 55.5 kB | 18.8 kB |
+| `index.js` | 55.7 kB | 18.8 kB |
 | `style.css` | 8.8 kB | 2.3 kB |
 | `markdown.css` | 5.3 kB | 2.3 kB |
 
