@@ -1,0 +1,25 @@
+// 只用来产 .d.ts。类型检查本身由根目录的 tsconfig.check.json 负责
+// （那份 noEmit，跑得更勤），这里多了 declaration，其余保持完全一致，
+// 避免「检查通过但产物里类型是另一套」。
+//
+// 排除 types.check.ts：那是给自己看的类型断言用例，不该出现在使用方的 dist 里。
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": [],
+    // 与根目录 tsconfig.check.json 保持一致：副作用导入也必须有声明兜底
+    "noUncheckedSideEffectImports": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"],
+  "exclude": ["src/types.check.ts"]
+}

@@ -1,0 +1,150 @@
+/* 文件：packages/markdown-editor/src/styles/editor.css
+   编辑器「外壳」样式：工具栏 / 分屏容器 / 文本域 / 预览容器 / 状态栏。
+   由 MarkdownEditor.vue 用 <style scoped src="./editor.css"> 引入，仍然是 scoped，
+   只是把 100 行样式从组件里挪出来，读逻辑时不被样式淹没。
+   Markdown 正文排版不在这里——那是同目录的 markdown.css（v-html 内容没有 scoped 属性，
+   必须用非 scoped 样式）。 */
+
+/* 主题变量：宿主改这几个就能换配色，不必动组件源码。
+   light 是默认值；dark / auto 只覆盖同一批变量，DOM 结构与选择器完全不变。
+
+   为什么套一层 :where()：它把变量层的特异性降到 0。若不降，组件的 scoped 样式会编译成
+   `.md-editor[data-v-xxx]`（0,2,0），宿主写最自然的 `.md-editor { --md-accent: #2563eb }`
+   （0,1,0）根本赢不了，只能上 !important。降成 0 之后宿主一条普通规则即可覆盖。
+   三组都是 0 特异性，靠源码顺序决胜负——所以 dark / auto 必须写在 light 之后。
+   布局属性不能进 :where()：那会让宿主的通配样式意外顶掉 display / gap。 */
+:where(.md-editor) {
+  --md-accent: #46ba86;
+  /* 实底按钮上的字色：白底浅色会读不出来，所以单独开一个变量，
+     传了 accentColor 时由组件按对比度自动算（见 core/color.ts） */
+  --md-accent-contrast: #fff;
+  --md-border: #e5e7eb;
+  --md-border-soft: #f0f1f3;
+  --md-bar-bg: #f7f8fa;
+  --md-hover: #eceff3;
+  --md-surface: #fff;
+  --md-text: #4b5563;
+  --md-text-strong: #111827;
+  --md-muted: #9ca3af;
+  --md-input-text: #1f2a37;
+  /* 超限提示色：与正文行内代码的语义色同源，亮色下用暗红保证在白底上够清楚 */
+  --md-danger: #c0341d;
+  --md-radius: 8px;
+}
+.md-editor {
+  display: flex; flex-direction: column; gap: 8px;
+}
+/* 深色：一套 GitHub Dark 风格的灰阶。正文排版（.md-body）的深色变量在 markdown.css，
+   用同样的 [data-theme] 选择器覆盖，两处要一起改。 */
+:where(.md-editor[data-theme='dark']) {
+  --md-accent: #3fb27f;
+  --md-border: #30363d;
+  --md-border-soft: #262c33;
+  --md-bar-bg: #161b22;
+  --md-hover: #232a33;
+  --md-surface: #0d1117;
+  --md-text: #adbac7;
+  --md-text-strong: #e6edf3;
+  --md-muted: #768390;
+  --md-input-text: #e6edf3;
+  --md-danger: #f08a7a;
+}
+/* auto：跟随系统。CSS 没法「复用上面那组值」，只能把变量再写一遍；
+   真要长期维护，用 JS 读 matchMedia 后把 data-theme 落成 dark 更省事。 */
+@media (prefers-color-scheme: dark) {
+  :where(.md-editor[data-theme='auto']) {
+    --md-accent: #3fb27f;
+    --md-border: #30363d;
+    --md-border-soft: #262c33;
+    --md-bar-bg: #161b22;
+    --md-hover: #232a33;
+    --md-surface: #0d1117;
+    --md-text: #adbac7;
+    --md-text-strong: #e6edf3;
+    --md-muted: #768390;
+    --md-input-text: #e6edf3;
+    --md-danger: #f08a7a;
+  }
+}
+
+/* 组件自带样式，复制到别的项目也能直接用 */
+.md-toolbar {
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  padding: 6px 8px; background: var(--md-bar-bg);
+  border: 1px solid var(--md-border); border-radius: var(--md-radius);
+}
+.md-tb {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; height: 28px; padding: 0 6px;
+  border: 1px solid transparent; background: transparent; border-radius: 5px;
+  font-size: 13px; color: var(--md-text); cursor: pointer; transition: background .12s, color .12s;
+}
+.md-tb:hover { background: var(--md-hover); color: var(--md-text-strong); }
+.md-tb:disabled { opacity: .35; cursor: not-allowed; }
+.md-tb.on { background: var(--md-accent); color: var(--md-accent-contrast, #fff); }
+/* 键盘走查要看得见焦点：:focus-visible 只给键盘用户描边，鼠标点不出现 */
+.md-tb:focus-visible, .md-select:focus-visible { outline: 2px solid var(--md-accent); outline-offset: 1px; }
+.md-sep { width: 1px; height: 16px; background: var(--md-border); margin: 0 4px; }
+.md-select {
+  appearance: none; -webkit-appearance: none;
+  height: 28px; padding: 0 22px 0 8px;
+  border: 1px solid var(--md-border); border-radius: 5px; background-color: var(--md-surface);
+  font-size: 12.5px; color: var(--md-text); cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+}
+/* 模式切换与全屏合成一组靠右排。margin-left:auto 只落在组上：
+   分别加在两个元素上会把剩余空白平分，模式组被挤到中间；
+   而只给组加，窄容器换行时两点也不会被拆到两行。 */
+.md-view-group { display: inline-flex; align-items: center; gap: 4px; margin-left: auto; }
+.md-mode { display: flex; gap: 2px; padding: 2px; background: var(--md-hover); border-radius: 6px; }
+.md-mode .md-tb { min-width: 44px; height: 24px; }
+.md-view { display: inline-flex; align-items: center; }
+.md-split {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr);
+  border: 1px solid var(--md-border); border-radius: var(--md-radius);
+  overflow: hidden; background: var(--md-surface);
+}
+.md-split.single { grid-template-columns: 1fr; }
+.md-pane { display: flex; flex-direction: column; min-width: 0; height: 100%; }
+.md-pane + .md-pane { border-left: 1px solid var(--md-border); }
+.md-pane-label {
+  flex: none; padding: 6px 12px; font-size: 12px; color: var(--md-muted);
+  background: var(--md-surface); border-bottom: 1px solid var(--md-border-soft);
+}
+.md-textarea {
+  width: 100%; flex: 1; min-height: 0; resize: none; padding: 12px 14px;
+  border: none; outline: none; font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 13.5px; line-height: 1.75; color: var(--md-input-text); background: var(--md-surface); overflow: auto;
+}
+/* 文本域本身没有边框，靠内描边给出键盘焦点，否则 Tab 进来完全看不出在哪 */
+.md-textarea:focus-visible { outline: 2px solid var(--md-accent); outline-offset: -2px; }
+.md-preview { flex: 1; min-height: 0; padding: 12px 16px; background: var(--md-surface); overflow: auto; }
+.md-preview:focus-visible { outline: 2px solid var(--md-accent); outline-offset: -2px; }
+/* 上下留白不对称：上面靠分隔线，4px 够；下面贴着容器边缘，需要 8px，
+   否则 12px 文字的下伸部会顶着边框，截图里看着像被裁掉。 */
+.md-status { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--md-muted); padding: 4px 4px 8px; }
+.md-status b { color: var(--md-text); font-weight: 600; }
+/* 超限只变颜色、不拦输入：数字变红已经足够提示，拦下来会把正在打的字吞掉 */
+.md-status .md-words.over, .md-status .md-words.over b { color: var(--md-danger); }
+.md-cursor { color: var(--md-text); }
+/* 上传中：文字保持常规色，用一颗跟着主色走的小圆点表示「还在进行」。
+   不把文字染成主色——主色可能是浅黄，浅底上会看不清。 */
+.md-uploading { display: inline-flex; align-items: center; gap: 5px; color: var(--md-text); }
+.md-uploading::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--md-accent); animation: md-pulse 1s ease-in-out infinite;
+}
+@keyframes md-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .md-uploading::before { animation: none; } }
+
+/* 文件选择框：只作为触发入口存在，不占布局、不进 Tab 顺序 */
+.md-file { display: none; }
+
+/* 全屏：铺满视口。宽高交给 inset，模板在全屏态不再写行内 width / height，
+   否则宿主传的 height="420px" 会把容器压在视口中间。 */
+.md-editor.is-fullscreen {
+  position: fixed; inset: 0; z-index: 2000;
+  padding: 8px; background: var(--md-surface); border-radius: 0;
+}
+.md-editor.is-fullscreen .md-split { flex: 1; min-height: 0; }

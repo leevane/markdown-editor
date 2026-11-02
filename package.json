@@ -1,0 +1,78 @@
+{
+  "name": "@wenxuan/markdown-editor",
+  "version": "1.0.0",
+  "description": "Vue 3 Markdown 编辑器：工具栏可配、双栏预览、DOMPurify 净化、中英双语",
+  "license": "MIT",
+  "author": "前端文轩",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leevane/wenxuan-markdown-editor.git"
+  },
+  "homepage": "https://github.com/leevane/wenxuan-markdown-editor#readme",
+  "bugs": {
+    "url": "https://github.com/leevane/wenxuan-markdown-editor/issues"
+  },
+  "type": "module",
+  "keywords": [
+    "vue",
+    "vue3",
+    "markdown",
+    "editor",
+    "marked",
+    "dompurify"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "docs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./markdown.css": "./dist/markdown.css",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && vue-tsc -p tsconfig.build.json && node scripts/postbuild.mjs",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "check:publish": "node scripts/check-publish.mjs",
+    "prepublishOnly": "npm run build && node scripts/check-publish.mjs"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.4",
+    "marked": "^15.0.6",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.5.1",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.7",
+    "vitest": "^5.0.5",
+    "vue": "^3.5.44",
+    "vue-tsc": "^3.3.14"
+  }
+}

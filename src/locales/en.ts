@@ -1,0 +1,61 @@
+// 文件：packages/markdown-editor/src/locales/en.ts
+// 英文语言包。结构与 zh.ts 一一对应，字段顺序也保持一致——
+// 两门语言并排改的时候，眼睛不用来回找位置。
+import type { ResolvedTexts } from '../types'
+
+export const EN_TEXTS = {
+  placeholder: 'Write in Markdown…',
+  sourceLabel: 'Markdown',
+  previewLabel: 'Preview (sanitized)',
+  modeEdit: 'Edit',
+  modeSplit: 'Split',
+  modePreview: 'Preview',
+  wordsLabel: 'Words',
+  linesLabel: 'Lines',
+  cursor: (line, col) => `Ln ${line}, Col ${col}`,
+  toolbarLabel: 'Formatting toolbar',
+  viewModeLabel: 'View mode',
+  fullscreenEnter: 'Full screen',
+  fullscreenExit: 'Exit full screen',
+  uploading: (count) => `Uploading ${count}`,
+  headingParagraph: 'Paragraph',
+  sizeLabel: 'Size',
+  snippets: {
+    text: 'text',
+    quote: 'Quote',
+    listItem: 'List item',
+    taskItem: 'Todo',
+    bold: 'bold text',
+    italic: 'italic text',
+    strike: 'strikethrough',
+    inlineCode: 'code',
+    link: 'link text',
+    image: 'image description',
+    tableColumn: (i) => `Col ${i}`,
+    tableCell: 'Cell',
+    codeBlock: '// code',
+  },
+  // 工具名只写名字：后缀「(Ctrl+B)」由 toolbar/registry.ts 按当前键位表现算，
+  // 因为键位可以改也可以关，写死在语言包里就会变成假提示。
+  tools: {
+    undo: 'Undo',
+    redo: 'Redo',
+    heading: 'Heading level',
+    size: 'Font size',
+    color: 'Text color',
+    bg: 'Highlight color',
+    quote: 'Quote',
+    ul: 'Bulleted list',
+    ol: 'Numbered list',
+    task: 'Task list',
+    hr: 'Divider',
+    table: 'Table',
+    bold: 'Bold',
+    italic: 'Italic',
+    strike: 'Strikethrough',
+    inlineCode: 'Inline code',
+    codeBlock: 'Code block',
+    link: 'Link',
+    image: 'Image',
+  },
+} satisfies ResolvedTexts

@@ -1,0 +1,29 @@
+// 文件：tsconfig.json
+// 本包唯一的「编辑器 + 命令行」共用配置：VS Code / WebStorm 会自动加载就近的
+// tsconfig.json，`npm run typecheck` 也直接用它，两边不会再各看各的。
+//
+// 这份配置不 extends 任何外部文件。历史上一度 extends ../../tsconfig.check.json
+// （示例工程根目录的检查配置），但仓库独立发布后包目录就是仓库根，向上不存在
+// 那份文件——clone 下来 `npm install` 之后 IDE 与 typecheck 会一起失效。
+// 因此选项在包内自持，改规则只改这一份。
+//
+// tsconfig.build.json 是另一件事：只负责产 d.ts（emitDeclarationOnly），两者
+// 的 compilerOptions 有意保持同源，避免「检查通过但产物里类型是另一套」。
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "types": [],
+    // 副作用导入（import './styles/markdown.css'）也要求能解析到模块或类型声明。
+    // 默认是关的，于是「编辑器报错、命令行通过」这种事会悄悄发生——打开它，
+    // 缺少 declare module '*.css' 这类声明时命令行就会拦住。
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

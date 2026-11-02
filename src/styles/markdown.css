@@ -1,0 +1,106 @@
+/* 文件：packages/markdown-editor/src/styles/markdown.css */
+/* Markdown 渲染正文的排版（.md-body）。
+   必须是非 scoped 的普通 CSS：预览内容走 v-html 注入，生成的 DOM 上没有
+   scoped 的 data-v 属性，任何组件的 scoped 样式都打不进去，所以只能全局生效。
+   跟组件放同一目录，整个目录复制走时排版也跟着走。
+
+   整层包在 @layer md-body 里：没进层的样式（宿主的业务 CSS）天然优先，
+   想覆盖正文排版直接写 .md-body p { ... } 就行，不必拼选择器权重、也不用 !important。
+   配色全部走 --md-* 变量：容器侧定义了 --md-accent 就自动继承，否则用兜底色。 */
+@layer md-body {
+  .md-body {
+    /* 正文配色变量：在这里统一收口，深色主题只需在容器上覆盖这几个值 */
+    --md-body-text: #303133;
+    --md-body-accent: var(--md-accent, #46ba86);
+    /* 引用块 / 提示块的淡底色：从主色混出来，而不是写死一个淡绿。
+       写死的话客户换成蓝色品牌色，引用块还是绿底，一眼就不对。
+       前一行是给不认 color-mix 的旧浏览器兜底（声明无效时会被忽略，保留上一行）。 */
+    --md-body-accent-soft: #f6fcf9;
+    --md-body-accent-soft: color-mix(in srgb, var(--md-accent, #46ba86) 8%, var(--md-surface, #fff));
+    --md-body-muted: #5b6b7f;
+    --md-body-border: #e6e9ef;
+    --md-body-head-bg: #f7f9fb;
+    --md-body-code-bg: #f3f4f6;
+    --md-body-code-text: #c0341d;
+    --md-body-pre-bg: #1f2a37;
+    --md-body-pre-text: #e6edf3;
+    --md-body-pre-border: transparent;
+
+    font-size: 14px; line-height: 1.75; color: var(--md-body-text); word-wrap: break-word;
+  }
+
+  /* 深色正文：容器上打了 data-theme="dark" 才切换（auto 走下面的媒体查询）。
+     这些值不是把浅色反转出来的——行内代码在深底上必须提亮、代码块要比页面底色更深，
+     否则对比度不足、层级也会糊成一片。--md-body-accent 继承容器的 --md-accent，不用重写。 */
+  [data-theme='dark'] .md-body,
+  .md-body[data-theme='dark'] {
+    --md-body-text: #c9d1d9;
+    --md-body-accent-soft: #11241c;
+    --md-body-accent-soft: color-mix(in srgb, var(--md-accent, #3fb27f) 16%, var(--md-surface, #0d1117));
+    --md-body-muted: #9aa8b8;
+    --md-body-border: #30363d;
+    --md-body-head-bg: #161b22;
+    --md-body-code-bg: #1b2430;
+    --md-body-code-text: #ff9d8a;
+    --md-body-pre-bg: #05080d;
+    --md-body-pre-text: #d6dee8;
+    --md-body-pre-border: #30363d;
+  }
+  @media (prefers-color-scheme: dark) {
+    [data-theme='auto'] .md-body {
+      --md-body-text: #c9d1d9;
+      --md-body-accent-soft: #11241c;
+      --md-body-accent-soft: color-mix(in srgb, var(--md-accent, #3fb27f) 16%, var(--md-surface, #0d1117));
+      --md-body-muted: #9aa8b8;
+      --md-body-border: #30363d;
+      --md-body-head-bg: #161b22;
+      --md-body-code-bg: #1b2430;
+      --md-body-code-text: #ff9d8a;
+      --md-body-pre-bg: #05080d;
+      --md-body-pre-text: #d6dee8;
+      --md-body-pre-border: #30363d;
+    }
+  }
+  .md-body h1, .md-body h2, .md-body h3, .md-body h4 { margin: 18px 0 10px; line-height: 1.4; font-weight: 600; }
+  .md-body h1 { font-size: 22px; }
+  .md-body h2 { font-size: 19px; }
+  .md-body h3 { font-size: 16px; }
+  .md-body p { margin: 10px 0; }
+  .md-body a { color: var(--md-body-accent); text-decoration: none; }
+  .md-body a:hover { text-decoration: underline; }
+  .md-body code {
+    font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12.5px;
+    background: var(--md-body-code-bg); color: var(--md-body-code-text);
+    padding: 2px 5px; border-radius: 4px;
+    /* 行内代码超长时换行，避免撑破布局 */
+    overflow-wrap: anywhere; word-break: break-all;
+  }
+  .md-body pre {
+    background: var(--md-body-pre-bg); color: var(--md-body-pre-text);
+    padding: 14px 16px; border-radius: 8px;
+    border: 1px solid var(--md-body-pre-border);
+    overflow: auto; font-size: 12.5px; line-height: 1.6;
+  }
+  .md-body pre code { background: none; color: inherit; padding: 0; white-space: pre; word-break: normal; overflow-wrap: normal; }
+  .md-body blockquote {
+    margin: 12px 0; padding: 8px 14px; border-left: 4px solid var(--md-body-accent);
+    background: var(--md-body-accent-soft); color: var(--md-body-muted);
+  }
+  .md-body ul, .md-body ol { padding-left: 22px; margin: 10px 0; }
+  .md-body li { margin: 4px 0; }
+  .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+  .md-body th, .md-body td { border: 1px solid var(--md-body-border); padding: 7px 10px; text-align: left; }
+  .md-body th { background: var(--md-body-head-bg); font-weight: 600; }
+  .md-body img { max-width: 100%; border-radius: 6px; }
+
+  /* 上传中的占位图：伪协议 uploading: 会被净化器剥掉 src，只留 alt。
+     给它一个骨架尺寸与虚线边框，看起来像「占位槽」而不是渲染失败；
+     回填后这段语法整段换成真图，规则自然不再命中。 */
+  .md-body img:not([src]) {
+    display: block; width: 100%; max-width: 360px; height: 96px;
+    padding: 8px; border: 1px dashed var(--md-border, #d8dee6);
+    background: var(--md-body-code-bg, #f3f4f6);
+    font-size: 12px; color: #8b949e;
+  }
+  .md-body hr { border: none; border-top: 1px solid var(--md-body-border); margin: 18px 0; }
+}
