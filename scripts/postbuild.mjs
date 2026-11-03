@@ -3,7 +3,7 @@
 // 为什么单独放 markdown.css：组件内部的 `import './styles/markdown.css'`
 // 会被 vite 抽进 style.css（和 scoped 外壳样式合并）。但有些使用方不想整体
 // 引入 style.css（比如自己复刻了外壳、只借用预览排版），所以再给一个
-// `@wenxuan/markdown-editor/markdown.css` 的入口。
+// `@leevane/markdown-editor/markdown.css` 的入口。
 import { copyFileSync, existsSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'

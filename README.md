@@ -1,6 +1,6 @@
-![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@wenxuan/markdown-editor@1.0.0/docs/preview.png)
+![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@leevane/markdown-editor@1.0.0/docs/preview.png)
 
-# @wenxuan/markdown-editor
+# @leevane/markdown-editor
 
 基于 Vue 3 的 Markdown 编辑器组件：左侧编辑、右侧实时预览，工具栏可裁剪，内置中英文界面，
 预览 HTML 统一经 DOMPurify 净化后输出。
@@ -17,7 +17,7 @@
 ## 安装
 
 ```bash
-pnpm add @wenxuan/markdown-editor
+pnpm add @leevane/markdown-editor
 ```
 
 `vue` 为 peer 依赖（`^3.4`），由宿主应用提供。
@@ -27,8 +27,8 @@ pnpm add @wenxuan/markdown-editor
 ```vue
 <script setup>
 import { ref } from 'vue'
-import MarkdownEditor from '@wenxuan/markdown-editor'
-import '@wenxuan/markdown-editor/style.css'
+import MarkdownEditor from '@leevane/markdown-editor'
+import '@leevane/markdown-editor/style.css'
 
 const doc = ref('# 标题\n\n正文 **加粗**')
 </script>
@@ -44,7 +44,7 @@ const doc = ref('# 标题\n\n正文 **加粗**')
 若仅需预览区排版、外壳由使用方自行实现，引入 `markdown.css`（只包含 `.md-body` 预览样式）：
 
 ```js
-import '@wenxuan/markdown-editor/markdown.css'
+import '@leevane/markdown-editor/markdown.css'
 ```
 
 ## Props
@@ -159,8 +159,8 @@ async function upload(file: File) {
 新增语言无需修改组件源码：
 
 ```ts
-import { registerLocale } from '@wenxuan/markdown-editor'
-import type { ResolvedTexts } from '@wenxuan/markdown-editor'
+import { registerLocale } from '@leevane/markdown-editor'
+import type { ResolvedTexts } from '@leevane/markdown-editor'
 
 registerLocale('ja', JA_TEXTS satisfies ResolvedTexts)
 ```
@@ -222,7 +222,7 @@ registerLocale('ja', JA_TEXTS satisfies ResolvedTexts)
 自定义工具栏按钮可复用同一套格式化逻辑：
 
 ```ts
-import { formatShortcut } from '@wenxuan/markdown-editor'
+import { formatShortcut } from '@leevane/markdown-editor'
 
 formatShortcut('mod+shift+b')   // 'Ctrl+Shift+B'
 formatShortcut('cmd+k')         // '⌘+K'
@@ -302,7 +302,7 @@ formatShortcut(false)           // ''（调用方据此省略后缀）
 文字颜色判据同样对外导出，自绘实底按钮时可直接复用：
 
 ```ts
-import { readableTextColor, contrastRatio } from '@wenxuan/markdown-editor'
+import { readableTextColor, contrastRatio } from '@leevane/markdown-editor'
 
 readableTextColor('#fbbf24')                    // '#111827'
 readableTextColor('#2563eb')                    // '#ffffff'
@@ -337,7 +337,7 @@ contrastRatio([37, 99, 235], [255, 255, 255])   // 5.17
 渲染逻辑与组件解耦，可脱离组件单独使用：
 
 ```ts
-import { renderMarkdown, buildToc, countWords, detectActive } from '@wenxuan/markdown-editor'
+import { renderMarkdown, buildToc, countWords, detectActive } from '@leevane/markdown-editor'
 
 const html = renderMarkdown(md)   // 已按内置白名单净化
 const toc = buildToc(html)        // [{ level, text, id }]
@@ -386,10 +386,10 @@ countWords(md)                    // 字数（中文按字，英文按词）
 
 | # | 事项 | 做法 |
 |---|---|---|
-| 1 | npm 账号 | 在 npmjs.com 注册；发布必须开启两步验证，否则 `npm publish` 会要求 OTP |
-| 2 | 本机登录 | `npm adduser`（或 `npm login`），随后 `npm whoami` 应返回用户名 |
-| 3 | 包名是否可用 | `npm view @wenxuan/markdown-editor version`，返回 404 才是可用 |
-| 4 | 作用域归属 | `@wenxuan` 必须是自己的用户名或自己创建的组织。若 `wenxuan` 已被他人占用：改成 `@<你的用户名>/markdown-editor`（同步改 `package.json`、README 主图 URL），或在 npmjs.com 创建名为 `wenxuan` 的组织 |
+| 1 | npm 账号 | 在 npmjs.com 注册。开启两步验证后 `npm publish` 会要求输入 OTP，非交互场景用 `npm publish --otp=123456`；未开启则不询问 |
+| 2 | 本机登录 | `npm login`（npm 10 走浏览器授权），随后 `npm whoami` 应返回用户名 |
+| 3 | 包名是否可用 | `npm view @leevane/markdown-editor version`，返回 404 才是可用 |
+| 4 | 作用域归属 | 作用域 `@leevane` 是 npm 组织，发布账号必须是该组织成员：`npm org ls leevane` 能看到自己的用户名才可发布。作用域与用户名不一致时，scoped 包不能直接发 |
 | 5 | 仓库地址 | 仓库为 `https://github.com/leevane/wenxuan-markdown-editor`，`repository` / `homepage` / `bugs` 三项已写入 `package.json`；包页右侧的 Repository、Homepage、Issues 入口全部由这三项生成 |
 
 ### 每次发布
@@ -424,7 +424,7 @@ npm publish            # 触发 prepublishOnly：重新构建后再校验
 README 用绝对地址引用：
 
 ```
-https://unpkg.com/@wenxuan/markdown-editor@1.0.0/docs/preview.png
+https://unpkg.com/@leevane/markdown-editor@1.0.0/docs/preview.png
 ```
 
 - **必须使用绝对地址**。npm 从 tarball 渲染 README，脱离仓库上下文，`./docs/preview.png`

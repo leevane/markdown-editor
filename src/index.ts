@@ -2,8 +2,8 @@
 // 组件的唯一入口（barrel）。对外只暴露「一个组件 + 一组纯函数 + 全部类型」，
 // 内部的 core / composables / toolbar / styles 怎么分，使用方不必知道。
 //
-//   import MarkdownEditor, { renderMarkdown, buildToc } from '@wenxuan/markdown-editor'
-//   import type { MarkdownEditorInstance } from '@wenxuan/markdown-editor'
+//   import MarkdownEditor, { renderMarkdown, buildToc } from '@leevane/markdown-editor'
+//   import type { MarkdownEditorInstance } from '@leevane/markdown-editor'
 //
 // 为什么不直接 import './MarkdownEditor.vue'：使用者只需要记住一个路径；
 // 将来内部再拆文件、改名，也不会传导到业务代码。

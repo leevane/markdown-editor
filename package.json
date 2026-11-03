@@ -1,5 +1,5 @@
 {
-  "name": "@wenxuan/markdown-editor",
+  "name": "@leevane/markdown-editor",
   "version": "1.0.0",
   "description": "Vue 3 Markdown 编辑器：工具栏可配、双栏预览、DOMPurify 净化、中英双语",
   "license": "MIT",

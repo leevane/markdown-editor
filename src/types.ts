@@ -3,7 +3,7 @@
 // 纯类型文件（只有 interface / type），编译产物为空，跟着目录拷走即可。
 //
 // 用法：
-//   import type { MarkdownEditorInstance, MarkdownEditorTexts } from '@wenxuan/markdown-editor'
+//   import type { MarkdownEditorInstance, MarkdownEditorTexts } from '@leevane/markdown-editor'
 //   /** @type {import('vue').Ref<MarkdownEditorInstance | null>} */
 //   const editorRef = ref(null)
 import type { RenderOptions } from './core/markdown'

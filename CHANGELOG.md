@@ -80,7 +80,7 @@
 
 **打包边界**
 
-- 独立包 `@wenxuan/markdown-editor`，`exports` 提供四个出口：
+- 独立包 `@leevane/markdown-editor`，`exports` 提供四个出口：
   `.`（JS + d.ts）、`./style.css`、`./markdown.css`、`./package.json`。
 - `marked` / `dompurify` / `turndown` 全部 external，由使用方按自己的版本安装；
   `vue` 为 peerDependency（`^3.4`）。
