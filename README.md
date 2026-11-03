@@ -1,4 +1,4 @@
-![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@leevane/markdown-editor@1.0.0/docs/preview.png)
+![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@leevane/markdown-editor@1.0.1/docs/preview.png)
 
 # @leevane/markdown-editor
 
@@ -449,7 +449,7 @@ npm 对命令行 / token 发起的发布会先进**暂存队列**，人工确认
 README 用绝对地址引用：
 
 ```
-https://unpkg.com/@leevane/markdown-editor@1.0.0/docs/preview.png
+https://unpkg.com/@leevane/markdown-editor@1.0.1/docs/preview.png
 ```
 
 - **必须使用绝对地址**。npm 从 tarball 渲染 README，脱离仓库上下文，`./docs/preview.png`

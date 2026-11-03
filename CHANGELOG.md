@@ -6,6 +6,18 @@
 发布前由 `prepublishOnly` 校验「本文件首条版本号」与 `package.json` 的 `version` 一致，
 版本对不上会直接拦截发布。
 
+## [1.0.1] - 2026-11-03
+
+文档与元信息修正，组件代码与 `1.0.0` 完全一致，升级无需改动业务代码。
+
+### 变更
+
+- 仓库地址改为 `github.com/leevane/markdown-editor`（去掉 `wenxuan-` 前缀）。`package.json` 的
+  `repository` / `homepage` / `bugs` 同步更新，包页右侧的 Repository、Homepage、Issues 三个入口随之指向新地址；
+  GitHub 对旧仓库名保留重定向，原有链接不会失效。
+- README 中的仓库链接、发布前置条件表、「为什么用 unpkg」小节里的仓库路径同步为新地址。
+- README 配图 URL 的版本号随包版本升至 `1.0.1`，与 tarball 内容保持一致。
+
 ## [1.0.0] - 2026-11-03
 
 首个版本。核心原则：**组件只负责编辑，不碰网络、不碰存储、不碰路由**；
