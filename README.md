@@ -382,6 +382,10 @@ countWords(md)                    // 字数（中文按字，英文按词）
 
 ## 发布
 
+面向维护者的完整流程——版本号判断、git 提交与打 tag 的时机、失败对照——见
+[PUBLISHING.md](https://github.com/leevane/markdown-editor/blob/main/PUBLISHING.md)。
+下面只写与包内容、发布校验相关的约束。
+
 ### 首次发布前的准备
 
 | # | 事项 | 做法 |
@@ -400,8 +404,8 @@ npm run check:publish  # 8 项发布校验，可单独运行
 npm publish            # 触发 prepublishOnly：重新构建后再校验，产物进入暂存队列
 ```
 
-`npm publish` 返回 `+ @leevane/markdown-editor@x.y.z` 只代表**上传成功**，版本此时尚未对外开放，
-还需在 npmjs.com 批准一次暂存版本（见下节）。
+`npm publish` 返回 `+ @leevane/markdown-editor@x.y.z` 表示上传完成。`1.0.0` 上传后还需在
+npmjs.com 批准一次暂存版本；`1.0.1` 起实测发布后自动生效。若某次查不到新版本，按下节处理。
 
 版本号遵循语义化版本。发版前先在 `CHANGELOG.md` 顶部补一条记录：`prepublishOnly` 会比对
 「首条版本号」与 `package.json` 的 `version`，不一致直接拦截，避免出现「发出去的版本在变更记录里查不到」。
@@ -423,8 +427,8 @@ npm publish            # 触发 prepublishOnly：重新构建后再校验，产�
 
 ### 暂存发布（staged publishing）
 
-npm 对命令行 / token 发起的发布会先进**暂存队列**，人工确认两步验证后才对外开放。
-本包 1.0.0 即按此流程上线，实际经历是：
+npm 对命令行 / token 发起的发布可能先进**暂存队列**，人工确认两步验证后才对外开放。
+本包 `1.0.0` 遇到的就是这种情况，`1.0.1` 未出现。遇到暂存时的实际经历是：
 
 | 步骤 | 现象 |
 |---|---|
