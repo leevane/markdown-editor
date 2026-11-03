@@ -85,7 +85,7 @@ npm version patch --no-git-tag-version
 ```bash
 npm run typecheck      # 期望 0 错
 npm test               # 期望 82 项通过
-npm run check:publish  # 期望 8 项通过
+npm run check:publish  # 期望 8 项通过（明细见附录 A）
 ```
 
 改过源码、构建配置或依赖时，回到示例工程根再跑一次完整验收：
@@ -183,3 +183,83 @@ npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里
 - **不要把 token 写进 `.npmrc` 或提交进仓库**。用完即在网页上撤销。
 - **不要在 CHANGELOG 里写流水账**。它是给使用者读的，不是开发日志。
 - **不要跳过第 3 步**。`prepublishOnly` 只覆盖构建与打包相关内容，跑不了 SSR 与消费端安装验证。
+
+---
+
+## 附录 A：`check:publish` 的 8 项校验
+
+由 `scripts/check-publish.mjs` 执行，`prepublishOnly` 会自动调用，也可以单独跑。
+
+| # | 校验 | 拦截的典型事故 |
+|---|---|---|
+| 1 | 版本号与 `CHANGELOG.md` 首条一致 | 发出去的版本在变更记录里查不到 |
+| 2 | `exports` / `main` / `types` 指向的文件存在且非空 | 路径写错，安装后才报找不到模块 |
+| 3 | `files` 覆盖 `dist`、`CHANGELOG.md`、`docs` | tarball 漏产物或漏配图 |
+| 4 | 依赖无 `file:` / `link:` / `workspace:` | 装包方拿到空壳 |
+| 5 | `marked` / `dompurify` / `turndown` 已在 `dependencies` 声明 | 产物是 external 的，使用方装不上就跑不起来 |
+| 6 | README 非空 | npm 页面没有文档 |
+| 7 | README 图片为绝对 https 地址、URL 版本号与 `package.json` 一致、源文件存在 | 包页配图 404，或升版后图仍指向旧版本 |
+| 8 | `repository` / `homepage` / `bugs` 齐全、均为 https、且与仓库路径一致 | 包页缺少仓库与 Issue 入口，或改名后链接指向不存在的仓库 |
+
+本包为 scoped 包，`publishConfig.access` 已设为 `public`，无需额外传 `--access public`。
+
+---
+
+## 附录 B：首次发布前的准备（一次性）
+
+| # | 事项 | 做法 |
+|---|---|---|
+| 1 | npm 账号 + 2FA | 已启用 passkey 两步验证（Windows Hello）。上传阶段不需要动态码，需要人工确认时在浏览器里用指纹完成 |
+| 2 | 本机登录 | `npm login --auth-type=web`，随后 `npm whoami` 应返回 `jw_lee` |
+| 3 | 包名是否可用 | `npm view @leevane/markdown-editor version`，返回 404 才是可用 |
+| 4 | 作用域归属 | `@leevane` 是 npm 组织，发布账号必须是成员：`npm org ls leevane` 能看到自己才可发布 |
+| 5 | 仓库地址 | `repository` / `homepage` / `bugs` 三项写入 `package.json`；包页右侧 Repository、Homepage、Issues 入口全部由这三项生成 |
+
+---
+
+## 附录 C：暂存队列与包页配图
+
+### 暂存发布（staged publishing）
+
+npm 对命令行 / token 发起的发布**可能**先进暂存队列，人工确认后才对外开放。本包 `1.0.0`
+遇到的就是这种情况，`1.0.1` 未出现。
+
+| 步骤 | 现象 |
+|---|---|
+| 1. `npm publish` | 返回 `+ @leevane/markdown-editor@x.y.z` |
+| 2. 查 registry | `npm view <包名> version` 返回 `0.0.0-stage`，新版本仍 404 |
+| 3. 批准 | npmjs.com → **Packages → Staged Packages** → **Approve**，过 2FA |
+| 4. 生效 | `latest` 指向新版本，tarball 与配图立即可取 |
+
+几个容易误判的点：
+
+- **`0.0.0-stage` 不是发错版本**。它是 npm 自动创建的占位包，描述为
+  `Temporary package placeholder for staged publishing`。该占位会一直留在版本列表里，不影响 `latest`。
+- **暂存队列按 owner 分开**。组织包要在组织维度看：`npmjs.com/settings/leevane/staged`，
+  个人账号的 Staged Packages 页面里看不到组织包。
+- **带 bypass 2FA 的 token 只能上传、不能批准**。2FA 闸门被后移到批准环节，所以批准必须在浏览器里完成。
+
+### 包页配图为什么用 unpkg 绝对地址
+
+示意图存放在 `docs/preview.png`，随包一起发布（`files` 里含 `docs`），README 首行用绝对地址引用：
+
+```
+https://unpkg.com/@leevane/markdown-editor@<版本号>/docs/preview.png
+```
+
+- **必须绝对地址**。npm 从 tarball 渲染 README，脱离仓库上下文，`./docs/preview.png`
+  这类相对路径在包页上必然 404（在 GitHub 上却正常，所以本地很难发现）。
+- **用 unpkg 而非 GitHub raw**。部分网络访问 `raw.githubusercontent.com` 与 `cdn.jsdelivr.net`
+  会失败，unpkg 直接读 npm 包内容，发布后立即可用。
+- **升版必须同步 URL 里的版本号**，由附录 A 第 7 项把关。
+- 改用 raw 地址可从 `files` 移除 `docs`，tarball 小约 170 kB，代价是包页配图依赖 GitHub 可用性。
+  当前选择「图随包走」，包页与 tarball 内容一致。
+
+### 文档放哪里
+
+| 文件 | 面向 | 是否进 tarball |
+|---|---|---|
+| `README.md` | 使用方：安装、Props、事件、方法、限制 | ✅ 进，npm 包页正文 |
+| `CHANGELOG.md` | 使用方：版本变化 | ✅ 进 |
+| `PUBLISHING.md` | 维护者：发布与提交流程 | ❌ 不进，只在仓库里看 |
+| `docs/preview.png` | 使用方：包页配图 | ✅ 进 |
