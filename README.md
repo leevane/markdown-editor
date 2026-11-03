@@ -12,7 +12,7 @@
 - 快捷键、撤销合并窗口、预览防抖均提供默认值，无需配置即可使用
 - 品牌主色可替换，激活态文字颜色按对比度自动选择
 
-仓库：[GitHub](https://github.com/leevane/wenxuan-markdown-editor) · [问题反馈](https://github.com/leevane/wenxuan-markdown-editor/issues) · [更新日志](https://github.com/leevane/wenxuan-markdown-editor/blob/main/CHANGELOG.md)
+仓库：[GitHub](https://github.com/leevane/markdown-editor) · [问题反馈](https://github.com/leevane/markdown-editor/issues) · [更新日志](https://github.com/leevane/markdown-editor/blob/main/CHANGELOG.md)
 
 ## 安装
 
@@ -390,7 +390,7 @@ countWords(md)                    // 字数（中文按字，英文按词）
 | 2 | 本机登录 | `npm login`（npm 10 走浏览器授权），随后 `npm whoami` 应返回用户名 |
 | 3 | 包名是否可用 | `npm view @leevane/markdown-editor version`，返回 404 才是可用 |
 | 4 | 作用域归属 | 作用域 `@leevane` 是 npm 组织，发布账号必须是该组织成员：`npm org ls leevane` 能看到自己的用户名才可发布。作用域与用户名不一致时，scoped 包不能直接发 |
-| 5 | 仓库地址 | 仓库为 `https://github.com/leevane/wenxuan-markdown-editor`，`repository` / `homepage` / `bugs` 三项已写入 `package.json`；包页右侧的 Repository、Homepage、Issues 入口全部由这三项生成 |
+| 5 | 仓库地址 | 仓库为 `https://github.com/leevane/markdown-editor`，`repository` / `homepage` / `bugs` 三项已写入 `package.json`；包页右侧的 Repository、Homepage、Issues 入口全部由这三项生成 |
 
 ### 每次发布
 
@@ -457,8 +457,8 @@ https://unpkg.com/@leevane/markdown-editor@1.0.0/docs/preview.png
 - **为什么用 unpkg 而不是 GitHub raw**。本机与部分网络环境访问 `raw.githubusercontent.com`
   与 `cdn.jsdelivr.net` 会失败，unpkg 直接读取 npm 包内容，发布后立即可用。
 - **升版时要同步 URL 里的版本号**。第 7 项校验会比对版本号，写错会在发布前报出来。
-- **仓库已建，此处仍用 unpkg**。仓库为 `leevane/wenxuan-markdown-editor`，GitHub raw 也可用
-  （`https://raw.githubusercontent.com/leevane/wenxuan-markdown-editor/main/docs/preview.png`），
+- **仓库已建，此处仍用 unpkg**。仓库为 `leevane/markdown-editor`，GitHub raw 也可用
+  （`https://raw.githubusercontent.com/leevane/markdown-editor/main/docs/preview.png`），
   但要求图片已提交到 `main` 分支；改用 raw 后可从 `files` 中移除 `docs`，tarball 小约 170 kB，
   代价是包页配图依赖 GitHub 的可用性。当前配置选择「图随包走」，包页与 tarball 内容一致。
 

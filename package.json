@@ -6,11 +6,11 @@
   "author": "前端文轩",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leevane/wenxuan-markdown-editor.git"
+    "url": "git+https://github.com/leevane/markdown-editor.git"
   },
-  "homepage": "https://github.com/leevane/wenxuan-markdown-editor#readme",
+  "homepage": "https://github.com/leevane/markdown-editor#readme",
   "bugs": {
-    "url": "https://github.com/leevane/wenxuan-markdown-editor/issues"
+    "url": "https://github.com/leevane/markdown-editor/issues"
   },
   "type": "module",
   "keywords": [
