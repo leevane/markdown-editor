@@ -111,15 +111,17 @@ git push origin v1.0.2
 ### 第 5 步：发布
 
 ```bash
-npm publish
+npm publish --//registry.npmjs.org/:_authToken=npm_你的token
 ```
+
+token 的获取见第四节，**内联传参、不写进 `.npmrc`**。
 
 `prepublishOnly` 会自动重新构建（vite + vue-tsc + postbuild 四条产物断言）再跑一遍 8 项校验，任一项失败即中止，坏包传不上去。
 
 成功回执：
 
 ```
-+ @leevane/markdown-editor@1.0.2
++ @leevane/markdown-editor@x.y.z
 ```
 
 ### 第 6 步：验证（一分钟内完成）
@@ -141,22 +143,38 @@ npm view @leevane/markdown-editor dist-tags       # latest 指向新版本
 
 ---
 
-## 四、认证（首次使用，或换了机器）
+## 四、认证：用带 bypass 2FA 的 granular access token
+
+发布固定用这一条：
 
 ```bash
-npm logout
-npm login --auth-type=web
-npm whoami          # 必须返回 jw_lee
+npm publish --//registry.npmjs.org/:_authToken=npm_你的token
 ```
 
-`--auth-type=web` 不是可选项。本账号 2FA 用的是 **passkey（Windows Hello）**，没有 6 位 TOTP，
-npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里残留旧 token，`npm publish` 会报
-`EOTP`：
+**为什么不用 `npm login`。** 本账号 2FA 是 **passkey（Windows Hello）**，没有 6 位 TOTP。npm 的写操作
+要求一次性口令，而 passkey 只能在浏览器里确认——非交互终端（脚本、CI、自动化）拿不到结果，
+`npm publish` 会直接报 `EOTP`。`--auth-type=web` 只在有交互终端的机器上才起作用。
 
-> This operation requires a one-time password from your authenticator.
+**每次发版前生成一枚短期 token：**
 
-处理：`npm logout` 清掉旧 token → `npm login --auth-type=web` 重新走浏览器授权 → **等 30 秒**
-让认证状态传播 → 再 `npm publish`。
+1. 打开 `https://www.npmjs.com/settings/jw_lee/tokens` → **Generate New Token** → **Granular Access Token**
+2. Permissions 选 **Read and write**
+3. Expiration 选 **7 days**
+4. Organizations 选 `leevane` 为 **Read and write**（发布组织包所需的权限在这里，不在 Packages 那栏）
+5. 滚到页面底部勾选 **Bypass 2FA**（不勾就会被 403 拦下）
+6. **Generate Token**，复制 `npm_` 开头的字符串——只显示一次
+
+**收尾三步（必做）：**
+
+- 发布成功后立刻回 token 页面 **Revoke**；
+- 终端执行 `history -c`，清掉带 token 的命令历史；
+- token 不要写进 `.npmrc`、不要提交进仓库、不要贴进聊天记录。
+
+**冲突处理。** 如果 `~/.npmrc` 里还留着旧的 `//registry.npmjs.org/:_authToken`，先 `npm logout`
+清掉再发布，避免它与内联 token 相互覆盖。
+
+> **时效提醒**：npm 已宣布「granular token 直发」通道于 2027 年 1 月关闭。届时要改用
+> stage-only + 网页批准，或 Trusted Publishing（GitHub Actions + OIDC）。本流程届时需更新。
 
 ---
 
@@ -164,13 +182,14 @@ npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里
 
 | 报错 / 现象 | 原因 | 处理 |
 |---|---|---|
-| `EOTP` | 走了 TOTP 分支，或登录态未传播 | 见上一节，重新登录后等 30 秒重试 |
+| `EOTP` | 发布时没内联 token，或 `.npmrc` 残留旧 token 让 npm 走了 TOTP 分支 | 用 `--//registry.npmjs.org/:_authToken=npm_xxx` 传入带 bypass 2FA 的 token |
+| `403 ... a granular access token with bypass 2fa enabled is required` | token 没勾 Bypass 2FA | 重新生成，勾选 Bypass 2FA |
 | `CHANGELOG 首条版本是 x，package.json 是 y` | 改了 `version` 没补 CHANGELOG | 补顶部条目，两处对齐 |
 | `README 图片 URL 的版本是 x，package.json 是 y` | 升版后配图地址没跟着改 | 改 README 里 unpkg URL 的版本号 |
 | `402 Payment Required` | scoped 包没声明公开 | 确认 `publishConfig.access` 为 `public` |
 | `403 Forbidden` / `Scope not found` | 发布账号不是组织成员 | `npm org ls leevane` 应能看到自己 |
 | `409 Conflict` | 该版本号已存在，不可复用 | 升 PATCH 重新发，不能覆盖 |
-| 登录正常却返回 `404` | npm 对权限问题常返回误导性 404 | 查 `npm whoami` 与组织成员关系 |
+| 登录正常却返回 `404` | npm 对权限问题常返回误导性 404 | 检查 token 的组织权限与 `npm org ls leevane` 成员关系 |
 | 包页配图 404 | unpkg URL 指向尚未发布的版本 | 发布完成后自动恢复，或核对 URL 版本号 |
 
 ---
@@ -180,7 +199,8 @@ npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里
 - **不要手改 `dist/`**。它由 `npm run build` 生成，下次构建即被覆盖，也不入库。
 - **不要先 `npm publish` 再提交 git**。发出去的版本会找不到对应的代码快照。
 - **不要重发同一个版本号**。npm 不允许覆盖，只能升版本。
-- **不要把 token 写进 `.npmrc` 或提交进仓库**。用完即在网页上撤销。
+- **不要把 token 写进 `.npmrc` 或提交进仓库**。用 `--//registry.npmjs.org/:_authToken=` 内联传入，
+  发完 `history -c`，并在网页上 Revoke。
 - **不要在 CHANGELOG 里写流水账**。它是给使用者读的，不是开发日志。
 - **不要跳过第 3 步**。`prepublishOnly` 只覆盖构建与打包相关内容，跑不了 SSR 与消费端安装验证。
 
@@ -209,8 +229,8 @@ npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里
 
 | # | 事项 | 做法 |
 |---|---|---|
-| 1 | npm 账号 + 2FA | 已启用 passkey 两步验证（Windows Hello）。上传阶段不需要动态码，需要人工确认时在浏览器里用指纹完成 |
-| 2 | 本机登录 | `npm login --auth-type=web`，随后 `npm whoami` 应返回 `jw_lee` |
+| 1 | npm 账号 + 2FA | 已启用 passkey 两步验证（Windows Hello）。发布不走 OTP 流程，改用带 bypass 2FA 的 granular token |
+| 2 | 发布凭据 | 每次发版前生成一枚 7 天期、勾选 Bypass 2FA 的 token，内联传给 `npm publish`，用完撤销（见第四节） |
 | 3 | 包名是否可用 | `npm view @leevane/markdown-editor version`，返回 404 才是可用 |
 | 4 | 作用域归属 | `@leevane` 是 npm 组织，发布账号必须是成员：`npm org ls leevane` 能看到自己才可发布 |
 | 5 | 仓库地址 | `repository` / `homepage` / `bugs` 三项写入 `package.json`；包页右侧 Repository、Homepage、Issues 入口全部由这三项生成 |
@@ -222,11 +242,11 @@ npm 只能通过浏览器指纹完成验证。漏掉这一步、或 `.npmrc` 里
 ### 暂存发布（staged publishing）
 
 npm 对命令行 / token 发起的发布**可能**先进暂存队列，人工确认后才对外开放。本包 `1.0.0`
-遇到的就是这种情况，`1.0.1` 未出现。
+遇到的就是这种情况；`1.0.1`、`1.0.2` 用 bypass token 发布均直接生效，未进队列。
 
 | 步骤 | 现象 |
 |---|---|
-| 1. `npm publish` | 返回 `+ @leevane/markdown-editor@x.y.z` |
+| 1. `npm publish --//registry.npmjs.org/:_authToken=npm_xxx` | 返回 `+ @leevane/markdown-editor@x.y.z` |
 | 2. 查 registry | `npm view <包名> version` 返回 `0.0.0-stage`，新版本仍 404 |
 | 3. 批准 | npmjs.com → **Packages → Staged Packages** → **Approve**，过 2FA |
 | 4. 生效 | `latest` 指向新版本，tarball 与配图立即可取 |
@@ -237,7 +257,7 @@ npm 对命令行 / token 发起的发布**可能**先进暂存队列，人工确
   `Temporary package placeholder for staged publishing`。该占位会一直留在版本列表里，不影响 `latest`。
 - **暂存队列按 owner 分开**。组织包要在组织维度看：`npmjs.com/settings/leevane/staged`，
   个人账号的 Staged Packages 页面里看不到组织包。
-- **带 bypass 2FA 的 token 只能上传、不能批准**。2FA 闸门被后移到批准环节，所以批准必须在浏览器里完成。
+- **真进了队列时，approve 必须在浏览器里做**。2FA 闸门在批准环节，CLI 的 bypass token 无法代替。
 
 ### 包页配图为什么用 unpkg 绝对地址
 
