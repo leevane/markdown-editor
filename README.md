@@ -386,7 +386,7 @@ countWords(md)                    // 字数（中文按字，英文按词）
 
 | # | 事项 | 做法 |
 |---|---|---|
-| 1 | npm 账号 | 在 npmjs.com 注册。开启两步验证后 `npm publish` 会要求输入 OTP，非交互场景用 `npm publish --otp=123456`；未开启则不询问 |
+| 1 | npm 账号 + 2FA | 账号已启用 passkey 两步验证（Windows Hello）。上传阶段不需要动态码，批准暂存版本时在浏览器里用指纹确认；纯 TOTP 账号可用 `npm publish --otp=123456` |
 | 2 | 本机登录 | `npm login`（npm 10 走浏览器授权），随后 `npm whoami` 应返回用户名 |
 | 3 | 包名是否可用 | `npm view @leevane/markdown-editor version`，返回 404 才是可用 |
 | 4 | 作用域归属 | 作用域 `@leevane` 是 npm 组织，发布账号必须是该组织成员：`npm org ls leevane` 能看到自己的用户名才可发布。作用域与用户名不一致时，scoped 包不能直接发 |
@@ -397,8 +397,11 @@ countWords(md)                    // 字数（中文按字，英文按词）
 ```bash
 npm run build          # 构建 + 4 项产物断言
 npm run check:publish  # 8 项发布校验，可单独运行
-npm publish            # 触发 prepublishOnly：重新构建后再校验
+npm publish            # 触发 prepublishOnly：重新构建后再校验，产物进入暂存队列
 ```
+
+`npm publish` 返回 `+ @leevane/markdown-editor@x.y.z` 只代表**上传成功**，版本此时尚未对外开放，
+还需在 npmjs.com 批准一次暂存版本（见下节）。
 
 版本号遵循语义化版本。发版前先在 `CHANGELOG.md` 顶部补一条记录：`prepublishOnly` 会比对
 「首条版本号」与 `package.json` 的 `version`，不一致直接拦截，避免出现「发出去的版本在变更记录里查不到」。
@@ -417,6 +420,28 @@ npm publish            # 触发 prepublishOnly：重新构建后再校验
 | 8 | `repository` / `homepage` / `bugs` 齐全、均为 https、且与仓库路径一致 | 包页缺少仓库与 Issue 入口，或改名后链接指向不存在的仓库 |
 
 本包为 scoped 包，`publishConfig.access` 已设为 `public`，无需额外传 `--access public`。
+
+### 暂存发布（staged publishing）
+
+npm 对命令行 / token 发起的发布会先进**暂存队列**，人工确认两步验证后才对外开放。
+本包 1.0.0 即按此流程上线，实际经历是：
+
+| 步骤 | 现象 |
+|---|---|
+| 1. `npm publish` | 返回 `+ @leevane/markdown-editor@1.0.0`，并提示 `Your package is being processed` |
+| 2. 查 registry | `npm view <包名> version` 返回 `0.0.0-stage`，`1.0.0` 仍 404 |
+| 3. 批准 | npmjs.com → **Packages → Staged Packages** → 找到该版本 → **Approve**，过 2FA |
+| 4. 生效 | `latest` 指向 `1.0.0`，占位版本消失，tarball 与配图立即可取 |
+
+几个容易误判的点：
+
+- **`0.0.0-stage` 不是发错版本**。它是 npm 自动创建的占位包，描述为
+  `Temporary package placeholder for staged publishing`，批准后会被替换。
+- **暂存队列按 owner 分开**。组织包要在组织维度看：`npmjs.com/settings/<org>/staged`，
+  个人账号的 Staged Packages 页面里看不到组织包。
+- **带 bypass 2FA 的 token 只能上传、不能批准**。这是 npm 的设计：token 泄露也发不了版，
+  2FA 闸门被后移到批准环节。因此批准必须在浏览器里完成（或 CLI `npm stage approve` +
+  TOTP，需 npm ≥ 11.15）。
 
 ### 关于 README 配图
 
