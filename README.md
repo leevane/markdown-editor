@@ -1,4 +1,4 @@
-![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@leevane/markdown-editor@1.0.1/docs/preview.png)
+![Markdown 编辑器：左侧 Markdown 源码、右侧实时预览，工具栏可配，底部状态栏显示字数与光标位置](https://unpkg.com/@leevane/markdown-editor@1.0.2/docs/preview.png)
 
 # @leevane/markdown-editor
 

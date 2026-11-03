@@ -1,6 +1,6 @@
 {
   "name": "@leevane/markdown-editor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vue 3 Markdown 编辑器：工具栏可配、双栏预览、DOMPurify 净化、中英双语",
   "license": "MIT",
   "author": "前端文轩",
