@@ -340,7 +340,7 @@ contrastRatio([37, 99, 235], [255, 255, 255])   // 5.17
 import { renderMarkdown, buildToc, countWords, detectActive } from '@leevane/markdown-editor'
 
 const html = renderMarkdown(md)   // 已按内置白名单净化
-const toc = buildToc(html)        // [{ level, text, id }]
+const toc = buildToc(md)          // [{ level, text, id }]，入参是 Markdown 原文
 countWords(md)                    // 字数（中文按字，英文按词）
 ```
 
